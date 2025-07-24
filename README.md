@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 🎧 Eternity Ready Podcast Page – Source Code
 
-First, run the development server:
+## 🚧 Setup (Development)
+
+After cloning the repository, follow these steps to run the project locally:
+
+1. **Install Node.js dependencies:**
+
+```bash
+npm install
+```
+
+2. **Create a `.env.local` file in the root directory and add the following environment variables:**
+
+```env
+NEXT_PUBLIC_API_URL=YOUR_BACKEND_URL
+REVALIDATION_TOKEN=YOUR_REVALIDATION_TOKEN
+```
+
+> Replace the values above with your actual backend credentials.
+
+3. **Run the application in development mode:**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app will be available at: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Deploying to Production
 
-## Learn More
+When your app is ready for production:
 
-To learn more about Next.js, take a look at the following resources:
+1. **Build the application:**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Start the production server:**
 
-## Deploy on Vercel
+```bash
+npm run start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The application will run on the port shown in the terminal.  
+Example: [http://localhost:3002](http://localhost:3002)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🔁 Keep Application Online (PM2)
+
+To keep the app running in the background, use [PM2](https://pm2.keymetrics.io/):
+
+1. **Start the app with PM2:**
+
+```bash
+pm2 start npm --name "eternity-ready-app" -- start
+```
+
+2. **Save the PM2 process list:**
+
+```bash
+pm2 save
+```
+
+> This ensures the app stays online while the server is on.
+
+---
+
+## 🔄 Workflow to Update the Production App
+
+When updating the app in production, follow this flow:
+
+1. **Rebuild the application with the latest changes:**
+
+```bash
+npm run build
+```
+
+2. **Reload the PM2 process:**
+
+```bash
+pm2 reload eternity-ready-app
+```
+
+> You can also use the process ID shown in `pm2 list` if needed.
