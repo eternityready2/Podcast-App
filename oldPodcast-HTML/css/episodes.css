@@ -1,0 +1,517 @@
+.podcast-section,
+.episode-section {
+  max-width: 1200px;
+  padding: 20px;
+  background: #333333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  border-radius: 7px;
+}
+
+.podcast-section {
+  margin-top: 50px;
+  background: #121212;
+}
+
+.podcast-section p,
+.episode-description {
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.1em;
+}
+
+.podcast-header,
+.episode-image {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.podcast-image-wrap,
+.episode-image {
+  margin-top: -60px;
+  background-color: #fff;
+  line-height: 0;
+  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+.podcast-image,
+.episode-image {
+  margin-top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.podcast-info {
+  flex: 1;
+}
+
+.podcast-title {
+  font-size: 2em;
+  margin: 0 0 10px;
+}
+
+.podcast-description {
+  margin: 0 0 10px;
+  color: #d3d3d3;
+  font-family: 'Roboto', sans-serif;
+}
+
+.podcast-info span {
+  display: inline-block;
+  margin-right: 15px;
+  color: #fff;
+  font-size: 0.9em;
+}
+
+.podcast-content {
+  margin-top: 20px;
+}
+
+.seasons-wrap {
+  margin-top: 30px;
+}
+
+#seasons-dropdown {
+  margin-bottom: 0;
+}
+
+.episode-section {
+  display: flex;
+  gap: 20px;
+}
+
+.episode-image {
+  width: 100%;
+  height: 100%;
+}
+
+.episode {
+  display: flex;
+  gap: 20px;
+}
+
+.episode-number {
+  font-size: .8em;
+  text-transform: uppercase;
+  color: #d3d3d3;
+}
+
+.episode-date {
+  display: flex;
+  justify-content: space-between;
+  font-size: .8em;
+}
+
+.episode-player {
+  flex: 1;
+  position: relative;
+  top: -3px;
+}
+
+.episode-title,
+.mobile-title {
+  color: #fff;
+  margin-top: 5px;
+
+}
+
+.episode-description {
+  font-size: .9em;
+  margin: 5px 0px;
+}
+
+.episode-description p {
+  margin: 0;
+}
+
+.audio-player {
+  width: 100%;
+  color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.audio {
+  display: none;
+}
+
+
+.progress-container {
+  flex: 1;
+  height: 5px;
+  background: #444;
+  border-radius: 2.5px;
+  cursor: pointer;
+  position: relative;
+}
+
+.progress {
+  width: 0%;
+  height: 100%;
+  background: #f44;
+  border-radius: 2.5px;
+}
+
+.time-duration {
+  margin: 0 10px;
+  font-size: .8em;
+}
+
+
+
+.volume {
+  width: 100px;
+}
+
+/* Volume Slider Container */
+.volume-label {
+  margin-right: 10px;
+}
+
+/* Remove default appearance */
+input[type=range] {
+  -webkit-appearance: none;
+  /* Remove default WebKit styles */
+  width: 100px;
+  /* Adjust width as needed */
+  height: 5px;
+  background: #f44;
+  border-radius: 4px;
+  outline: none;
+}
+
+/* WebKit Track */
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  background: #f44;
+  border-radius: 4px;
+}
+
+/* WebKit Thumb */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  /* Override default thumb */
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #f44;
+  /* Desired thumb color */
+  margin-top: -6px;
+  /* Center the thumb vertically */
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+input[type=range]:hover::-webkit-slider-thumb {
+  background: #f44;
+  /* Thumb color on hover */
+}
+
+/* WebKit Focus Styles */
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #f44;
+}
+
+/* Firefox Track */
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  background: #f44;
+  border-radius: 4px;
+}
+
+/* Firefox Thumb */
+input[type=range]::-moz-range-thumb {
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #f44;
+  /* Desired thumb color */
+  cursor: pointer;
+  transition: background 0.3s ease;
+  overflow-wrap: anywhere;
+}
+
+input[type=range]:hover::-moz-range-thumb {
+  background: #f44;
+  /* Thumb color on hover */
+}
+
+/* Firefox Focus Styles */
+input[type=range]:focus::-moz-range-track {
+  background: #f44;
+}
+
+.play-overlay {
+  position: absolute;
+  top: calc(50% - 21px);
+  left: calc(50% - 21px);
+  width: 50px;
+  height: 50px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 10px;
+}
+
+.episode-image-wrap,
+.podcast-image-wrap {
+  position: relative;
+  width: 125px;
+  height: 125px;
+  border: 4px solid;
+  border-radius: 4px;
+  min-width: 125px;
+}
+
+.podcast-image-wrap {
+  width: 150px;
+  height: 150px;
+}
+
+/* Show Overlay on Hover */
+.episode-section:hover .play-overlay {
+  opacity: 1;
+}
+
+/* Play Icon Styling */
+.play-overlay i {
+  color: #ffffff;
+  /* Icon color */
+  transition: transform 0.3s ease;
+}
+
+.episode-section:hover .play-overlay i {
+  transform: scale(1.2);
+}
+
+.episode-section .episode-player {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.episode-section.playing .episode-player,
+.episode-section.playing .play-overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  display: flex;
+}
+
+.episode-description {
+  max-height: 65px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  color: #d3d3d3;
+  overflow-wrap: anywhere;
+}
+
+.episode-description.expanded {
+  max-height: 100%;
+  -webkit-line-clamp: unset;
+}
+
+/* Hide the gradient when expanded */
+.episode-description.expanded::after {
+  display: none;
+}
+
+/* Style for the Read More button */
+.read-more {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Optional: Change button color on hover */
+.read-more:hover {
+  color: #0056b3;
+}
+
+/* Playing Bars Container */
+.playing-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 1em;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Individual Bars */
+.playing-bars .bar {
+  width: 2px;
+  height: 100%;
+  background-color: #1db954;
+  /* Green color */
+  animation: bounce 1s infinite ease-in-out;
+  opacity: 0.6;
+}
+
+/* Staggered Animation Delays */
+.playing-bars .bar:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.playing-bars .bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.playing-bars .bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.playing-bars .bar:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+.playing-bars .bar:nth-child(5) {
+  animation-delay: 0.8s;
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: scaleY(0.4);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* Show Playing Bars When Active */
+.episode-section.playing .playing-bars {
+  opacity: 1;
+  visibility: visible;
+}
+
+.seasons-wrap label {
+  display: none;
+}
+
+.episode-image-wrap-outer {
+  display: flex;
+  gap: 20px;
+}
+.episode-details{
+  width: 100%;
+}
+.mobile-title {
+  display: none;
+}
+
+.mobile-details {
+  display: none;
+}
+
+.play-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
+}
+@media (max-width: 768px) {
+  .podcast-section {
+    margin-top: 80px;
+}
+.podcast-image-wrap{
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+.podcast-section {
+  margin-top: 20px;
+}
+}
+@media (max-width: 540px) {
+
+  .episode-section,
+  .mobile-details {
+    display: block;
+  }
+
+  .episode,
+  .episode-title {
+    display: none;
+  }
+
+  .mobile-title {
+    display: block;
+  }
+
+  .play-overlay {
+    display: none;
+  }
+  .mobile-details .audio-player{
+    display: none;
+  }
+  
+  .podcast-header{
+    display: block;
+  }
+  .podcast-image-wrap{
+    margin-top: 0;
+    margin-bottom: 30px;
+    max-width: 250px;
+    margin: auto;
+    width: 100%;
+    height: 100%;
+  }
+  .podcast-info{
+    text-align: center;
+    margin-top: 20px;
+  }
+  .episode-section.playing .play-overlay{
+    display: none;
+  }
+  .episode-section.playing .mobile-details .audio-player{
+    display: block;
+  }
+  .time-duration {
+    margin: 0;
+    right: 0;
+    top: -20px;
+    position: absolute;
+    font-size: .8em;
+}
+.playing .play-btn{
+  background-color: #00aeef;
+}
+}
+
+
+
