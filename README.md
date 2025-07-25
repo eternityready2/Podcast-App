@@ -18,7 +18,11 @@ NEXT_PUBLIC_API_URL=YOUR_BACKEND_URL
 REVALIDATION_TOKEN=YOUR_REVALIDATION_TOKEN
 ```
 
-> Replace the values above with your actual backend credentials.
+> Example:
+> - `NEXT_PUBLIC_API_URL`: URL of the API that will be used (e.g.,`https://keystone.eternityready.com`).
+> - `REVALIDATION_TOKEN`: Token to trigger static regeneration of the backend (if used).
+
+Replace the values above with your actual backend credentials.
 
 3. **Run the application in development mode:**
 
@@ -48,6 +52,8 @@ npm run start
 
 The application will run on the port shown in the terminal.  
 Example: [http://localhost:3002](http://localhost:3002)
+
+> ℹ️ By default, the project runs on http://localhost:3001
 
 ---
 
