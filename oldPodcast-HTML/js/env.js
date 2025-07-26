@@ -1,1 +1,0 @@
-const url = "https://keystone.eternityready.com";
