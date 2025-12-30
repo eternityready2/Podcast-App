@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 import { Roboto_Flex as Roboto } from "next/font/google";
-
+import Script from 'next/script';
 import "../../styles/styles.css";
 import "../../styles/episodes.css";
-import "../../styles/footer.css";
-import "../../styles/header.css";
 import "../../styles/main.css";
 import "@/lib/fontawesome";
 
-import PageHeader from "@/components/header";
-import PageFooter from "@/components/footer";
 import Salvation from "@/components/salvation";
 import { PlayerProvider } from "./context/PlayerContext";
 
@@ -42,12 +38,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable} `} suppressHydrationWarning>
-        <PageHeader />
-
+        <Script src="/lib/global-exporter.js" strategy="beforeInteractive" />
+        <Script src="https://eternityready.com/lib/constants.js" strategy="beforeInteractive" />
+        <Script src="https://eternityready.com/lib/session.js" strategy="beforeInteractive" />
+        <Script src="https://eternityready.com/lib/toast.js" strategy="beforeInteractive" />
+        <Script src="https://eternityready.com/lib/utils.js" strategy="beforeInteractive" /> 
+        <eternity-header></eternity-header>
         <PlayerProvider>{children}</PlayerProvider>
-
         <Salvation />
-        <PageFooter />
+        <eternity-footer></eternity-footer>
+        <Script src="https://eternityready.com/lib/eternityHeader.js" strategy="afterInteractive" />
+        <Script src="https://eternityready.com/lib/eternityFooter.js" strategy="afterInteractive" />
       </body>
     </html>
   );
