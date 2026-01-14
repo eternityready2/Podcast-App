@@ -16,6 +16,7 @@ const slidesData: SlideData[] = [
     type: "image",
     src: "/herobg.png",
   },
+  /*
   {
     key: "slide2",
     type: "video",
@@ -26,6 +27,7 @@ const slidesData: SlideData[] = [
     type: "image",
     src: "/herobg.png",
   },
+   */
   // { key: "slide4", type: "youtube", src: "_7qr2NcJhA0" },
 ];
 
@@ -221,7 +223,7 @@ function HeroSection() {
         </p>
         <a
           id="hero-button"
-          href="https://podcasts.eternityready.com/episodes?podcast=cmcsg7kpj06d8it1fu6btde4q"
+          href="https://podcasts.eternityready.com/optimizedVideo.mp4"
           className="hero-btn"
         >
           Learn More
