@@ -46,23 +46,82 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     currentEpisodeIndex >= 0 ? playlist[currentEpisodeIndex] : null;
 
   useEffect(() => {
-    if (!currentEpisode) {
-      return;
-    }
+    if (!currentEpisode) return;
 
-    if (isPlaying && audioRef.current) {
-      audioRef.current.src = currentEpisode.audioUrl;
-      const playPromise = audioRef.current.play();
-      audioRef.current.muted = false;
+    const audio = audioRef.current;
+    console.log('currentEpisode', currentEpisode);
+    const mediaTitle = currentEpisode.title;
+    const mediaData = {
+      origin: "podcast",
+      categories: currentEpisode.podcast.keywords.split(',') ?? [],
+    };
 
-      // O método .play() retorna uma Promise. É uma boa prática tratá-la.
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("Erro ao tentar reproduzir o áudio:", error);
-          // Opcional: pausar o estado se a reprodução automática falhar
+    try {
+      const deviceType = /Mobi|Android/i.test(navigator.userAgent)
+        ? "mobile"
+        : "desktop";
+
+      const globalUserTracking = getTracking()
+      const previousTitle = sessionStorage.getItem("lastTitle");
+
+      const trackingSession =
+        globalUserTracking["sessions"]?.[mediaTitle] ?? {
+          origin: mediaData.origin,
+          categories: mediaData.categories,
+          total_consumption_seconds: 0,
+          timestamps: [],
+          metadata: {
+            device: [],
+            average_watch_seconds: 0,
+            referrers: {},
+          },
+        };
+
+      if (previousTitle && previousTitle !== mediaTitle) {
+        const referrers = trackingSession.metadata.referrers;
+        referrers[previousTitle] = (referrers[previousTitle] ?? 0) + 1;
+      }
+      sessionStorage.setItem("lastTitle", mediaTitle);
+
+      trackingSession.metadata.device.push(deviceType);
+      trackingSession.timestamps.push({ start: Date.now() });
+
+      if (isPlaying && audio) {
+        audio.src = currentEpisode.audioUrl;
+        audio.muted = isMuted;
+        const playPromise = audio.play();
+        playPromise?.catch((error) => {
+          console.error("Failed to play:", error);
           setIsPlaying(false);
         });
       }
+
+      const finalizeTracking = () => {
+        const ts = trackingSession.timestamps;
+        const last = ts[ts.length - 1];
+        if (!last.end) last.end = Date.now();
+
+        const duration = (last.end - last.start) / 1000;
+        trackingSession.total_consumption_seconds += duration;
+        const totalSegments = ts.length;
+        trackingSession.metadata.average_watch_seconds =
+          trackingSession.total_consumption_seconds / totalSegments;
+
+        globalUserTracking.sessions[mediaTitle] = trackingSession;
+        (window as any).globalUserTracking = globalUserTracking;
+        setTracking(globalUserTracking);
+      };
+
+      window.addEventListener("beforeunload", finalizeTracking);
+      audio?.addEventListener("ended", finalizeTracking);
+
+      return () => {
+        window.removeEventListener("beforeunload", finalizeTracking);
+        audio?.removeEventListener("ended", finalizeTracking);
+        finalizeTracking();
+      };
+    } catch (error) {
+      console.error("Tracking error:", error);
     }
   }, [currentEpisode, isPlaying]);
 

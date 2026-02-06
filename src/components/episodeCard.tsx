@@ -54,7 +54,7 @@ export default function EpisodeCard({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
-
+  const trackingSessionRef = useRef<any>(null);
   const handlePlayClick = () => {
     onPlayClick();
   };
@@ -112,6 +112,75 @@ export default function EpisodeCard({
     };
   }, [audioRef, onPlayClick]);
 
+  useEffect(() => {
+    if (!isPlaying || !episode) return;
+
+    const mediaTitle = episode.title;
+    const mediaData = {
+      origin: "podcast",
+      categories: episode.podcast.keywords.split(',') ?? [],
+    };
+
+    try {
+      const globalUserTracking = getTracking()
+      const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+      const previousTitle = sessionStorage.getItem("lastTitle");
+      
+      const trackingSession =
+        globalUserTracking["sessions"]?.[mediaTitle] ?? {
+          origin: mediaData.origin,
+          categories: mediaData.categories,
+          total_consumption_seconds: 0,
+          timestamps: [],
+          metadata: {
+            device: [],
+            average_watch_seconds: 0,
+            referrers: {},
+          },
+        };
+
+      if (previousTitle && previousTitle !== mediaTitle) {
+        const referrers = trackingSession.metadata.referrers;
+        referrers[previousTitle] = (referrers[previousTitle] ?? 0) + 1;
+      }
+      sessionStorage.setItem("lastTitle", mediaTitle);
+
+      trackingSession.metadata.device.push(/Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop');
+      trackingSession.timestamps.push({ start: Date.now() });
+
+      trackingSessionRef.current = trackingSession;
+      globalUserTracking.sessions[mediaTitle] = trackingSession;
+      setTracking(globalUserTracking);  // ← YOUR function
+
+      const finalizeTracking = () => {
+        if (!trackingSessionRef.current?.timestamps?.length) return;
+        const ts = trackingSessionRef.current.timestamps;
+        const last = ts[ts.length - 1];
+        if (!last.end) {
+          last.end = Date.now();
+          const duration = (last.end - last.start) / 1000;
+          trackingSessionRef.current.total_consumption_seconds += duration;
+          trackingSessionRef.current.metadata.average_watch_seconds = 
+            trackingSessionRef.current.total_consumption_seconds / ts.length;
+
+          const finalTracking = getTracking();
+          finalTracking.sessions[mediaTitle] = trackingSessionRef.current;
+          setTracking(finalTracking);
+        }
+      };
+
+      window.addEventListener('beforeunload', finalizeTracking);
+      audioRef.current?.addEventListener('ended', finalizeTracking);
+
+      return () => {
+        window.removeEventListener('beforeunload', finalizeTracking);
+        audioRef.current?.removeEventListener('ended', finalizeTracking);
+        finalizeTracking();
+      };
+    } catch (error) {
+      console.error("EpisodeCard tracking error:", error);
+    }
+  }, [isPlaying, episode]);
   return (
     <div className={`episode-section ${isPlaying ? "playing" : ""}`}>
       <div className="episode-image-wrap-outer">
