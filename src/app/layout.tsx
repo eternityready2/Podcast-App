@@ -63,7 +63,7 @@ export default function RootLayout({
         </noscript>
         <Script src="/lib/global-exporter.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/constants.js" strategy="beforeInteractive" />
-        <Script src="http://127.0.0.1:8000/lib/tracking.js" strategy="beforeInteractive" />
+        <Script src="https://eternityready.com/lib/tracking.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/session.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/toast.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/utils.js" strategy="beforeInteractive" /> 
