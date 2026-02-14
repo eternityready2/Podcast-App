@@ -115,7 +115,7 @@ export default function EpisodeCard({
   useEffect(() => {
     if (!isPlaying || !episode) return;
 
-    const mediaTitle = episode.title;
+    const mediaTitle = episode?.podcast?.title?.trim();
     const mediaData = {
       origin: "podcast",
       categories: episode.podcast.keywords.split(',') ?? [],
@@ -150,7 +150,7 @@ export default function EpisodeCard({
 
       trackingSessionRef.current = trackingSession;
       globalUserTracking.sessions[mediaTitle] = trackingSession;
-      setTracking(globalUserTracking);  // ← YOUR function
+      setTracking(globalUserTracking);
 
       const finalizeTracking = () => {
         if (!trackingSessionRef.current?.timestamps?.length) return;

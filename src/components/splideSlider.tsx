@@ -16,7 +16,13 @@ type SliderProps = {
 };
 
 export default function SplideSlider({ type, data }: SliderProps) {
-  const title = type === "featured" ? "Featured" : "Latest";
+  const title = type === "featured"
+    ? "Featured" 
+    : (
+      type === "latestPodcasts"
+        ? "Latest"
+        : type
+      );
 
   if (!data || data.length === 0) {
     return null;

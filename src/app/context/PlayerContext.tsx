@@ -49,8 +49,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (!currentEpisode) return;
 
     const audio = audioRef.current;
-    console.log('currentEpisode', currentEpisode);
-    const mediaTitle = currentEpisode.title;
+    console.log('Podcast', currentEpisode?.podcast?.title?.trim(), 'currentEpisode', currentEpisode);
+    const mediaTitle = currentEpisode?.podcast?.title?.trim();
     const mediaData = {
       origin: "podcast",
       categories: currentEpisode.podcast.keywords.split(',') ?? [],

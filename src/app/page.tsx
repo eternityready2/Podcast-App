@@ -1,5 +1,6 @@
 import HeroSection from "@/components/heroSection";
 import SplideSlider from "@/components/splideSlider";
+import PodcastSlider from "@/components/PodcastSlider";
 // import PodcastGrid from "@/components/podcastGris";
 
 import Player from "@/components/Player";
@@ -67,6 +68,8 @@ export default async function Home() {
     getSliderData("latestPodcasts"),
   ]);
 
+  console.log('GridData', gridData, 'featuredPodcasts', featuredData);
+
   return (
     <main>
       <HeroSection />
@@ -75,6 +78,7 @@ export default async function Home() {
         <div className="cardbg">
           <SplideSlider type="featured" data={featuredData} />
           <SplideSlider type="latestPodcasts" data={latestPodcastsData} />
+          <PodcastSlider allMedia={gridData.allPodcasts} />
 
           <PodcastGridClient
             initialPodcasts={gridData.allPodcasts}
