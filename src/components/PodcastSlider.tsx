@@ -7,16 +7,18 @@ export default function PodcastSlider({ allMedia }) {
   const [data, setData] = useState({
   });
 
-  const getTopPodcasts = async (delay = 100) => {
+  const getTopPodcasts = async (delay = 100, retries = 0) => {
+    if (retries > 20) {
+      setIsLoading(false);
+      return;
+    }
     try {
-      const topItems = await getTopItems({origins: ['podcast']})
-      .map(x => allMedia.find(y => (y.title || y.name) === x.title));
-
+      const topItems = getTopItems({origins: ['podcast']})
+        .map(x => allMedia.find(y => (y.title || y.name) === x.title));
 
       const recentlyWatched = getRecentlyWatched({origins: ['podcast']})
         .map(x => allMedia.find(y => (y.title || y.name) === x.title));
 
-      
       const data = {
         'top': topItems,
         'recent': recentlyWatched
@@ -31,8 +33,8 @@ export default function PodcastSlider({ allMedia }) {
       }
 
     } catch (error) {
-      console.error('getTopItems error, retrying in 100ms:', error);
-      setTimeout(() => getTopPodcastsRecursive(delay), delay);
+      console.error('getTopItems error, retrying in', delay, 'ms:', error);
+      setTimeout(() => getTopPodcasts(Math.min(delay * 2, 5000), retries + 1), delay);
     }
   };
 
