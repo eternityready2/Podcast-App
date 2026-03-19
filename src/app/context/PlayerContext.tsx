@@ -7,6 +7,8 @@ import {
   ReactNode,
   useRef,
   useEffect,
+  useMemo,
+  useCallback,
 } from "react";
 
 interface Episode {
@@ -125,80 +127,90 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }
   }, [currentEpisode, isPlaying]);
 
-  function playEpisode(newPlaylist: Episode[], index: number) {
+  const playEpisode = useCallback((newPlaylist: Episode[], index: number) => {
     setPlaylist(newPlaylist);
     setCurrentEpisodeIndex(index);
     setIsPlaying(true);
     setIsPlayerVisible(true);
-  }
+  }, []);
 
-  function togglePlayPause() {
-    if (!currentEpisode) return;
-    setIsPlaying(!isPlaying);
-
+  const togglePlayPause = useCallback(() => {
     if (!audioRef.current) return;
 
-    if (isPlaying) {
-      audioRef.current.pause();
-      console.log("pause");
-    } else {
-      audioRef.current.play();
-      console.log("play");
-    }
-  }
+    setIsPlaying((prev) => {
+      if (prev) {
+        audioRef.current?.pause();
+      } else {
+        audioRef.current?.play();
+      }
+      return !prev;
+    });
+  }, []);
 
-  function playNext() {
-    const nextIndex = currentEpisodeIndex + 1;
-    if (nextIndex < playlist.length) {
-      setCurrentEpisodeIndex(nextIndex);
-    }
-  }
+  const playNext = useCallback(() => {
+    setPlaylist((pl) => {
+      setCurrentEpisodeIndex((prev) => (prev + 1 < pl.length ? prev + 1 : prev));
+      return pl;
+    });
+  }, []);
 
-  function playPrev() {
-    const prevIndex = currentEpisodeIndex - 1;
-    if (prevIndex >= 0) {
-      setCurrentEpisodeIndex(prevIndex);
-    }
-  }
+  const playPrev = useCallback(() => {
+    setCurrentEpisodeIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
 
-  function closePlayer() {
+  const closePlayer = useCallback(() => {
     setIsPlaying(false);
     setIsPlayerVisible(false);
     if (audioRef.current) {
       audioRef.current.src = "";
     }
-  }
+  }, []);
 
-  function mutePlayer() {
+  const mutePlayer = useCallback(() => {
     if (!audioRef.current) return;
+    SetIsMuted((prev) => {
+      audioRef.current!.muted = !prev;
+      return !prev;
+    });
+  }, []);
 
-    audioRef.current.muted = !isMuted;
-    SetIsMuted(!isMuted);
-  }
+  const contextValue = useMemo(
+    () => ({
+      playlist,
+      currentEpisodeIndex,
+      currentEpisode,
+      isPlaying,
+      playEpisode,
+      togglePlayPause,
+      playNext,
+      playPrev,
+      closePlayer,
+      isPlayerVisible,
+      mutePlayer,
+      isMuted,
+    }),
+    [
+      playlist,
+      currentEpisodeIndex,
+      currentEpisode,
+      isPlaying,
+      playEpisode,
+      togglePlayPause,
+      playNext,
+      playPrev,
+      closePlayer,
+      isPlayerVisible,
+      mutePlayer,
+      isMuted,
+    ]
+  );
 
   return (
-    <PlayerContext.Provider
-      value={{
-        playlist,
-        currentEpisodeIndex,
-        currentEpisode,
-        isPlaying,
-        playEpisode,
-        togglePlayPause,
-        playNext,
-        playPrev,
-        closePlayer,
-        isPlayerVisible,
-        mutePlayer,
-        isMuted,
-      }}
-    >
+    <PlayerContext.Provider value={contextValue}>
       {children}
       <audio
         ref={audioRef}
-        src={currentEpisode?.audioUrl}
         onEnded={playNext}
-        autoPlay
       />
     </PlayerContext.Provider>
   );

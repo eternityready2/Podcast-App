@@ -80,9 +80,10 @@ export default function PodcastGridClient({
     setVisibleEpisodesCount(INITIAL_ITEMS_LIMIT);
     setVisibleMixedCount(INITIAL_ITEMS_LIMIT);
     if (searchQuery === "") {
-      setActiveFilters({
-        podcast: true,
-        episode: true,
+      setActiveFilters((prev) => {
+        // Only update if values actually changed, to avoid unnecessary re-renders
+        if (prev.podcast && prev.episode) return prev;
+        return { podcast: true, episode: true };
       });
     }
   }, [searchQuery, selectedCategory]);

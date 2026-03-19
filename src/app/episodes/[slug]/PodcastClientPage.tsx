@@ -96,7 +96,7 @@ export default function PodcastClientPage({
     } else if (initialSeasons.hasUnknown) {
       setSelectedSeason(0);
     }
-  }, [initialSeasons]);
+  }, [initialSeasons.count, initialSeasons.hasUnknown]);
 
   useEffect(() => {
     if (selectedSeason !== null) {
