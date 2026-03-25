@@ -66,6 +66,8 @@ export default function RootLayout({
         <Script src="https://eternityready.com/lib/tracking.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/session.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/toast.js" strategy="beforeInteractive" />
+        <Script src="https://eternityready.com/lib/normalize.js" strategy="beforeInteractive" />
+        <Script src="https://eternityready.com/lib/media-section.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/utils.js" strategy="beforeInteractive" /> 
         <eternity-header></eternity-header>
         <PlayerProvider>{children}</PlayerProvider>
