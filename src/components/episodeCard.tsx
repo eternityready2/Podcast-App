@@ -24,6 +24,13 @@ interface EpisodeCardProps {
   onPlayClick: () => void;
 }
 
+function sanitizeHtml(html: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, "");
+}
+
 // Função para formatar a data como no seu script original
 const formatDate = (dateString: string) => {
   const releaseDate = new Date(dateString);
@@ -114,6 +121,7 @@ export default function EpisodeCard({
 
   useEffect(() => {
     if (!isPlaying || !episode) return;
+    if (typeof window === "undefined") return;
 
     const mediaTitle = (episode as any)?.podcastTitle?.trim() || episode.title?.trim();
     const rawCategories = (episode as any)?.categories || "";
@@ -285,7 +293,7 @@ export default function EpisodeCard({
         <div className="episode-title">{episode.title}</div>
         <div
           className={`episode-description ${isExpanded ? "expanded" : ""}`}
-          dangerouslySetInnerHTML={{ __html: episode.description }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(episode.description) }}
         />
         <div className="episode-date">
           <div>{formatDate(episode.releaseDate)}</div>

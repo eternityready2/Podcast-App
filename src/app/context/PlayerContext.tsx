@@ -93,7 +93,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       // Sync categoriesConsumed in localStorage for the recommendation engine
       if (typeof window !== "undefined" && window.localStorage) {
         const stored = localStorage.getItem("categoriesConsumed");
-        const categoriesConsumed = stored ? JSON.parse(stored) : {};
+        let categoriesConsumed: Record<string, number> = {};
+        try {
+          categoriesConsumed = stored ? JSON.parse(stored) : {};
+        } catch { /* corrupted localStorage, reset */ }
         for (const cat of mediaData.categories) {
           categoriesConsumed[cat] = (categoriesConsumed[cat] ?? 0) + 1;
         }
@@ -137,7 +140,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Tracking error:", error);
     }
-  }, [currentEpisode, isPlaying]);
+  }, [currentEpisode, isPlaying, isMuted]);
 
   const playEpisode = useCallback((newPlaylist: Episode[], index: number) => {
     setPlaylist(newPlaylist);

@@ -13,7 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { usePlayer } from "@/app/context/PlayerContext";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://sua-api.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function Player() {
   const {

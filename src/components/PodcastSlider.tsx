@@ -2,9 +2,11 @@
 import { useState, useEffect } from 'react';
 import SplideSlider from "@/components/splideSlider";
 
-export default function PodcastSlider({ allMedia }) {
+export default function PodcastSlider({ allMedia }: { allMedia: any[] }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState({
+  const [data, setData] = useState<{ top?: any[]; recent?: any[] }>({
+    top: [],
+    recent: [],
   });
 
   const getTopPodcasts = async (delay = 100, retries = 0) => {

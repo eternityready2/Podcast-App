@@ -31,6 +31,10 @@ async function getGridData() {
       fetch(`${API_URL}/api/categories`, options),
     ]);
 
+    if (!podRes.ok) throw new Error(`Podcasts API error: ${podRes.status}`);
+    if (!epRes.ok) throw new Error(`Episodes API error: ${epRes.status}`);
+    if (!catRes.ok) throw new Error(`Categories API error: ${catRes.status}`);
+
     const podData = await podRes.json();
     const epData = await epRes.json();
     const catData = await catRes.json();

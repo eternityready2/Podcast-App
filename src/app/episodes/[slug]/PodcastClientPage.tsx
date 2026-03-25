@@ -42,6 +42,13 @@ interface PodcastClientPageProps {
   latestPodcastsData: PodcastItem[];
 }
 
+function sanitizeHtml(html: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, "");
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function PodcastClientPage({
@@ -133,7 +140,7 @@ export default function PodcastClientPage({
               <h1 className="podcast-title">{initialPodcast.title}</h1>
               <div
                 className="podcast-description"
-                dangerouslySetInnerHTML={{ __html: initialPodcast.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(initialPodcast.description) }}
               />
               <div>
                 <span>
