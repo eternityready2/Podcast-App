@@ -24,3 +24,10 @@ declare function getMostConsumedCategories(opts?: {
   limit?: number;
   origins: string[];
 }): Array<{ category: string; total_consumption_seconds: number }>;
+
+// Community engagement — from eternityready.com/lib/tracking.js
+declare function reportCommunityEngagement(
+  title: string,
+  origin: string,
+  action: "play" | "like"
+): Promise<void>;

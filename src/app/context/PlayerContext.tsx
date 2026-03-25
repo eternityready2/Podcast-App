@@ -103,6 +103,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("categoriesConsumed", JSON.stringify(categoriesConsumed));
       }
 
+      // Report community engagement for podcast plays
+      if (typeof reportCommunityEngagement === "function") {
+        reportCommunityEngagement(mediaTitle, "podcasts", "play");
+      }
+
       if (isPlaying && audio) {
         audio.src = currentEpisode.audioUrl;
         audio.muted = isMuted;
