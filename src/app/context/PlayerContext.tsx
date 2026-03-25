@@ -51,11 +51,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (!currentEpisode) return;
 
     const audio = audioRef.current;
-    console.log('Podcast', currentEpisode?.podcast?.title?.trim(), 'currentEpisode', currentEpisode);
-    const mediaTitle = currentEpisode?.podcast?.title?.trim();
+    const mediaTitle = (currentEpisode as any)?.podcastTitle?.trim() || currentEpisode.title?.trim();
+    const rawCategories = (currentEpisode as any)?.categories || "";
     const mediaData = {
       origin: "podcast",
-      categories: currentEpisode.podcast.keywords.split(',') ?? [],
+      categories: typeof rawCategories === "string"
+        ? rawCategories.split(",").map((c: string) => c.trim()).filter(Boolean)
+        : rawCategories,
     };
 
     try {
@@ -87,6 +89,16 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
       trackingSession.metadata.device.push(deviceType);
       trackingSession.timestamps.push({ start: Date.now() });
+
+      // Sync categoriesConsumed in localStorage for the recommendation engine
+      if (typeof window !== "undefined" && window.localStorage) {
+        const stored = localStorage.getItem("categoriesConsumed");
+        const categoriesConsumed = stored ? JSON.parse(stored) : {};
+        for (const cat of mediaData.categories) {
+          categoriesConsumed[cat] = (categoriesConsumed[cat] ?? 0) + 1;
+        }
+        localStorage.setItem("categoriesConsumed", JSON.stringify(categoriesConsumed));
+      }
 
       if (isPlaying && audio) {
         audio.src = currentEpisode.audioUrl;

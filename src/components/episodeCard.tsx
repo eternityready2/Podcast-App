@@ -115,10 +115,13 @@ export default function EpisodeCard({
   useEffect(() => {
     if (!isPlaying || !episode) return;
 
-    const mediaTitle = episode?.podcast?.title?.trim();
+    const mediaTitle = (episode as any)?.podcastTitle?.trim() || episode.title?.trim();
+    const rawCategories = (episode as any)?.categories || "";
     const mediaData = {
       origin: "podcast",
-      categories: episode.podcast.keywords.split(',') ?? [],
+      categories: typeof rawCategories === "string"
+        ? rawCategories.split(",").map((c: string) => c.trim()).filter(Boolean)
+        : rawCategories,
     };
 
     try {
@@ -145,7 +148,7 @@ export default function EpisodeCard({
       }
       sessionStorage.setItem("lastTitle", mediaTitle);
 
-      trackingSession.metadata.device.push(/Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop');
+      trackingSession.metadata.device.push(deviceType);
       trackingSession.timestamps.push({ start: Date.now() });
 
       trackingSessionRef.current = trackingSession;
