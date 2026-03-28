@@ -133,6 +133,8 @@ export default function EpisodeCard({
     };
 
     try {
+      if (typeof getTracking !== "function") return;
+
       const globalUserTracking = getTracking()
       const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
       const previousTitle = sessionStorage.getItem("lastTitle");

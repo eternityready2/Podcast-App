@@ -61,6 +61,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     };
 
     try {
+      if (typeof getTracking !== "function") return;
+
       const deviceType = /Mobi|Android/i.test(navigator.userAgent)
         ? "mobile"
         : "desktop";
