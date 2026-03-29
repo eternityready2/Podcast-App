@@ -205,7 +205,7 @@ export default function EpisodeCard({
             width={150}
             height={150}
           />
-          <div className="play-overlay play-pause" onClick={handlePlayClick}>
+          <div className="play-overlay play-pause" onClick={handlePlayClick} role="button" aria-label={isPlaying ? "Pause" : "Play"}>
             {isPlaying ? (
               <FontAwesomeIcon icon={faPause} size="2x" />
             ) : (
@@ -220,7 +220,7 @@ export default function EpisodeCard({
             <div className="episode-number">Episode: {episode.episode}</div>
           )}
           <div className="mobile-title">{episode.title}</div>
-          <div className="play-btn play-pause" onClick={handlePlayClick}>
+          <div className="play-btn play-pause" onClick={handlePlayClick} role="button" aria-label={isPlaying ? "Pause" : "Play"}>
             {isPlaying ? (
               <FontAwesomeIcon icon={faPause} />
             ) : (

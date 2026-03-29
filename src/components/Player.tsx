@@ -52,13 +52,13 @@ export default function Player() {
 
       <div className="player-core-controls">
         <div className="controls">
-          <button onClick={playPrev} className="control-btn">
+          <button onClick={playPrev} className="control-btn" aria-label="Previous episode">
             <FontAwesomeIcon icon={faBackward} />
           </button>
-          <button onClick={togglePlayPause} className="control-btn play-btn">
+          <button onClick={togglePlayPause} className="control-btn play-btn" aria-label={isPlaying ? "Pause" : "Play"}>
             <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />
           </button>
-          <button onClick={playNext} className="control-btn">
+          <button onClick={playNext} className="control-btn" aria-label="Next episode">
             <FontAwesomeIcon icon={faForward} />
           </button>
         </div>
@@ -69,8 +69,10 @@ export default function Player() {
           icon={isMuted ? faVolumeOff : faVolumeHigh}
           onClick={mutePlayer}
           id="mute"
+          role="button"
+          aria-label={isMuted ? "Unmute" : "Mute"}
         />{" "}
-        <FontAwesomeIcon icon={faClose} onClick={closePlayer} id="close" />
+        <FontAwesomeIcon icon={faClose} onClick={closePlayer} id="close" role="button" aria-label="Close player" />
       </div>
     </div>
   );

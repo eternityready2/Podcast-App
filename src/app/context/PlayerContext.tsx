@@ -41,7 +41,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
-  const [isMuted, SetIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const currentEpisode =
@@ -190,7 +190,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const mutePlayer = useCallback(() => {
     if (!audioRef.current) return;
-    SetIsMuted((prev) => {
+    setIsMuted((prev) => {
       audioRef.current!.muted = !prev;
       return !prev;
     });
