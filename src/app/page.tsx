@@ -27,7 +27,7 @@ async function getGridData() {
 
     const [podRes, epRes, catRes] = await Promise.all([
       fetch(`${API_URL}/api/podcasts?limit=9999`, options),
-      fetch(`${API_URL}/api/allEpisodes`, options),
+      fetch(`${API_URL}/api/allEpisodes?limit=24`, options),
       fetch(`${API_URL}/api/categories`, options),
     ]);
 
@@ -42,13 +42,14 @@ async function getGridData() {
     const allPodcasts = (podData.data || []).sort((a: Podcast, b: Podcast) =>
       a.title.localeCompare(b.title)
     );
-    const allEpisodes = epData.data || [];
+    const initialEpisodes = epData.data || [];
+    const episodesPagination = epData.pagination || { total: 0, page: 1, limit: 24, totalPages: 0 };
     const categories = catData.categories || [];
 
-    return { allPodcasts, allEpisodes, categories };
+    return { allPodcasts, initialEpisodes, episodesPagination, categories };
   } catch (error) {
     console.error("Falha ao buscar dados para o grid:", error);
-    return { allPodcasts: [], allEpisodes: [], categories: [] };
+    return { allPodcasts: [], initialEpisodes: [], episodesPagination: { total: 0, page: 1, limit: 24, totalPages: 0 }, categories: [] };
   }
 }
 
@@ -86,7 +87,8 @@ export default async function Home() {
 
           <PodcastGridClient
             initialPodcasts={gridData.allPodcasts}
-            initialEpisodes={gridData.allEpisodes}
+            initialEpisodes={gridData.initialEpisodes}
+            episodesPagination={gridData.episodesPagination}
             initialCategories={gridData.categories}
           />
         </div>

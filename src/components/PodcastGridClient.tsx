@@ -1,13 +1,12 @@
 "use client"; // ESSENCIAL: Isso marca o componente para rodar no navegador
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { usePlayer } from "@/app/context/PlayerContext";
 import Image from "next/image";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-// Defina as interfaces aqui também para o componente saber o formato dos dados
 interface Podcast {
   id: string;
   slug: string;
@@ -15,6 +14,20 @@ interface Podcast {
   imageUrl: string;
   categories: string;
 }
+
+interface RawEpisode {
+  id: string;
+  title: string;
+  imageUrl: string;
+  audioUrl: string;
+  podcast?: {
+    id?: string;
+    title?: string;
+    slug?: string;
+    categories?: string;
+  };
+}
+
 interface Episode {
   id: string;
   title: string;
@@ -25,38 +38,64 @@ interface Episode {
   categories: string;
   slug: string;
 }
+
+interface EpisodesPagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 type MixedContent =
   | (Podcast & { type: "podcast" })
   | (Episode & { type: "episode" });
 
-// Props que o componente receberá do Componente de Servidor
 interface PodcastGridClientProps {
   initialPodcasts: Podcast[];
-  initialEpisodes: Episode[];
+  initialEpisodes: RawEpisode[];
+  episodesPagination: EpisodesPagination;
   initialCategories: string[];
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 const INITIAL_ITEMS_LIMIT = 18;
 const ITEMS_INCREMENT = 12;
+const EPISODES_PER_PAGE = 24;
+const SEARCH_DEBOUNCE_MS = 400;
 
-// O componente agora recebe os dados iniciais como props
+function normalizeEpisode(raw: RawEpisode): Episode {
+  return {
+    id: raw.id,
+    title: raw.title,
+    imageUrl: raw.imageUrl,
+    audioUrl: raw.audioUrl,
+    podcastId: raw.podcast?.id || "",
+    podcastTitle: raw.podcast?.title || "",
+    categories: raw.podcast?.categories || "",
+    slug: raw.podcast?.slug || "",
+  };
+}
+
 export default function PodcastGridClient({
   initialPodcasts,
   initialEpisodes,
+  episodesPagination,
   initialCategories,
 }: PodcastGridClientProps) {
   const router = useRouter();
   const { playEpisode, closePlayer } = usePlayer();
 
-  // O estado agora é populado com as props iniciais.
-  // A busca de dados não acontece mais aqui!
   const [allPodcasts] = useState<Podcast[]>(initialPodcasts);
-  const [allEpisodes] = useState<Episode[]>(initialEpisodes);
-  const [categories] = useState<string[]>(initialCategories);
+  const [episodes, setEpisodes] = useState<Episode[]>(
+    initialEpisodes.map(normalizeEpisode)
+  );
+  const [episodesPage, setEpisodesPage] = useState(episodesPagination.page);
+  const [episodesTotal, setEpisodesTotal] = useState(episodesPagination.total);
+  const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
 
-  // Toda a sua lógica de estado para filtros e interatividade continua aqui
+  const [categories] = useState<string[]>(initialCategories);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [activeFilters, setActiveFilters] = useState({
     podcast: true,
@@ -65,31 +104,80 @@ export default function PodcastGridClient({
 
   const [visiblePodcastsCount, setVisiblePodcastsCount] =
     useState(INITIAL_ITEMS_LIMIT);
-  const [visibleEpisodesCount, setVisibleEpisodesCount] =
-    useState(INITIAL_ITEMS_LIMIT);
   const [visibleMixedCount, setVisibleMixedCount] =
     useState(INITIAL_ITEMS_LIMIT);
+
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounce search query
+  useEffect(() => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, [searchQuery]);
+
+  // Fetch episodes from API when search or category changes
+  const fetchEpisodes = useCallback(
+    async (page: number, search: string, category: string, append: boolean) => {
+      setIsLoadingEpisodes(true);
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(EPISODES_PER_PAGE),
+        });
+        if (search) params.set("search", search);
+        if (category) params.set("category", category);
+
+        const res = await fetch(`${API_URL}/api/allEpisodes?${params}`);
+        if (!res.ok) throw new Error(`Episodes API error: ${res.status}`);
+        const data = await res.json();
+
+        const normalized = (data.data || []).map(normalizeEpisode);
+        setEpisodes((prev) => (append ? [...prev, ...normalized] : normalized));
+        setEpisodesPage(data.pagination?.page ?? page);
+        setEpisodesTotal(data.pagination?.total ?? 0);
+      } catch (err) {
+        console.error("Failed to fetch episodes:", err);
+      } finally {
+        setIsLoadingEpisodes(false);
+      }
+    },
+    []
+  );
+
+  // Re-fetch from page 1 whenever search or category changes
+  useEffect(() => {
+    setVisibleMixedCount(INITIAL_ITEMS_LIMIT);
+    setVisiblePodcastsCount(INITIAL_ITEMS_LIMIT);
+    if (activeFilters.podcast && activeFilters.episode && !debouncedSearch && !selectedCategory) return;
+    fetchEpisodes(1, debouncedSearch, selectedCategory, false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, selectedCategory]);
+
+  // Reset filters when search is cleared
+  useEffect(() => {
+    if (searchQuery === "") {
+      setActiveFilters((prev) => {
+        if (prev.podcast && prev.episode) return prev;
+        return { podcast: true, episode: true };
+      });
+    }
+    setVisibleMixedCount(INITIAL_ITEMS_LIMIT);
+    setVisiblePodcastsCount(INITIAL_ITEMS_LIMIT);
+  }, [searchQuery, selectedCategory]);
 
   const capitalizeFirstLetter = (string: string) => {
     if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
-  useEffect(() => {
-    setVisiblePodcastsCount(INITIAL_ITEMS_LIMIT);
-    setVisibleEpisodesCount(INITIAL_ITEMS_LIMIT);
-    setVisibleMixedCount(INITIAL_ITEMS_LIMIT);
-    if (searchQuery === "") {
-      setActiveFilters((prev) => {
-        // Only update if values actually changed, to avoid unnecessary re-renders
-        if (prev.podcast && prev.episode) return prev;
-        return { podcast: true, episode: true };
-      });
-    }
-  }, [searchQuery, selectedCategory]);
-
+  // Podcast filtering remains client-side (small dataset)
   const filteredPodcasts = useMemo((): Podcast[] => {
-    const lowerQuery = searchQuery.toLowerCase();
+    const lowerQuery = debouncedSearch.toLowerCase();
     return allPodcasts
       .filter((podcast) => {
         const titleMatch = podcast.title.toLowerCase().includes(lowerQuery);
@@ -101,31 +189,16 @@ export default function PodcastGridClient({
         return titleMatch && categoryMatch;
       })
       .sort((a, b) => a.title.localeCompare(b.title));
-  }, [allPodcasts, searchQuery, selectedCategory]);
-
-  const filteredEpisodes = useMemo((): Episode[] => {
-    const lowerQuery = searchQuery.toLowerCase();
-    return allEpisodes
-      .filter((episode) => {
-        const titleMatch = episode.title.toLowerCase().includes(lowerQuery);
-        const categoryMatch = selectedCategory
-          ? episode.categories
-              ?.toLowerCase()
-              .includes(selectedCategory.toLowerCase())
-          : true;
-        return titleMatch && categoryMatch;
-      })
-      .sort((a, b) => a.title.localeCompare(b.title));
-  }, [allEpisodes, searchQuery, selectedCategory]);
+  }, [allPodcasts, debouncedSearch, selectedCategory]);
 
   const mixedSearchResults = useMemo((): MixedContent[] => {
-    if (!searchQuery) return [];
+    if (!debouncedSearch) return [];
 
     const podcastsWithType: MixedContent[] = filteredPodcasts.map((p) => ({
       ...p,
       type: "podcast",
     }));
-    const episodesWithType: MixedContent[] = filteredEpisodes.map((e) => ({
+    const episodesWithType: MixedContent[] = episodes.map((e) => ({
       ...e,
       type: "episode",
     }));
@@ -133,20 +206,11 @@ export default function PodcastGridClient({
     return [...podcastsWithType, ...episodesWithType].sort((a, b) =>
       a.title.localeCompare(b.title)
     );
-  }, [filteredPodcasts, filteredEpisodes, searchQuery]);
+  }, [filteredPodcasts, episodes, debouncedSearch]);
 
   const finalFilteredItems = useMemo((): MixedContent[] => {
-    // Se nenhum filtro estiver ativo, não mostre nada.
-    if (!activeFilters.podcast && !activeFilters.episode) {
-      return [];
-    }
-
-    // Se ambos estiverem ativos, mostre todos os resultados da busca.
-    if (activeFilters.podcast && activeFilters.episode) {
-      return mixedSearchResults;
-    }
-
-    // Filtra com base no objeto de filtros ativos.
+    if (!activeFilters.podcast && !activeFilters.episode) return [];
+    if (activeFilters.podcast && activeFilters.episode) return mixedSearchResults;
     return mixedSearchResults.filter((item) => activeFilters[item.type]);
   }, [mixedSearchResults, activeFilters]);
 
@@ -155,45 +219,47 @@ export default function PodcastGridClient({
     [finalFilteredItems, visibleMixedCount]
   );
 
-  const podcastsToDisplay = useMemo(() => {
-    return filteredPodcasts.slice(0, visiblePodcastsCount);
-  }, [filteredPodcasts, visiblePodcastsCount]);
-
-  const episodesToDisplay = useMemo(() => {
-    return filteredEpisodes.slice(0, visibleEpisodesCount);
-  }, [filteredEpisodes, visibleEpisodesCount]);
+  const podcastsToDisplay = useMemo(
+    () => filteredPodcasts.slice(0, visiblePodcastsCount),
+    [filteredPodcasts, visiblePodcastsCount]
+  );
 
   const handleCardClick = (item: MixedContent) => {
     if (item.type === "podcast") {
       router.push(`/episodes/${item.slug}`);
       closePlayer();
     } else {
-      const episodeIndex = allEpisodes.findIndex((e) => e.id === item.id);
+      const episodeIndex = episodes.findIndex((e) => e.id === item.id);
       if (episodeIndex !== -1) {
-        playEpisode(allEpisodes, episodeIndex);
-      } else {
-        console.error("Erro: Episódio não encontrado na lista global.");
+        playEpisode(episodes, episodeIndex);
       }
     }
   };
 
+  const handleEpisodeClick = (episode: Episode) => {
+    const index = episodes.findIndex((e) => e.id === episode.id);
+    if (index !== -1) {
+      playEpisode(episodes, index);
+    }
+  };
+
+  const handleLoadMoreEpisodes = () => {
+    const nextPage = episodesPage + 1;
+    fetchEpisodes(nextPage, debouncedSearch, selectedCategory, true);
+  };
+
   const handleFilterToggle = (filterType: "podcast" | "episode") => {
     setActiveFilters((currentFilters) => {
-      // Calcula o próximo estado
       const nextFilters = {
         ...currentFilters,
         [filterType]: !currentFilters[filterType],
       };
-
-      // Trava de segurança: Se ambos os filtros estiverem prestes a se tornar falsos,
-      // não permita a mudança. Pelo menos um deve estar sempre ativo.
-      if (!nextFilters.podcast && !nextFilters.episode) {
-        return currentFilters; // Retorna o estado anterior sem alteração
-      }
-
+      if (!nextFilters.podcast && !nextFilters.episode) return currentFilters;
       return nextFilters;
     });
   };
+
+  const hasMoreEpisodes = episodesPage * EPISODES_PER_PAGE < episodesTotal;
 
   return (
     <div>
@@ -228,11 +294,7 @@ export default function PodcastGridClient({
       <div className="main-parent">
         <p className="filter-text">Filter results by type:</p>
         <div className="filter-buttons">
-          <button
-            onClick={() => handleFilterToggle("podcast")}
-            // Aplica um estilo se o filtro de podcast estiver ativo
-            // style={activeFilters.podcast ? { fontWeight: "bold" } : {}}
-          >
+          <button onClick={() => handleFilterToggle("podcast")}>
             <div
               className="checkbox"
               style={
@@ -251,11 +313,7 @@ export default function PodcastGridClient({
             Podcasts
             <span>{filteredPodcasts.length}</span>
           </button>
-          <button
-            onClick={() => handleFilterToggle("episode")}
-            // Aplica um estilo se o filtro de episódio estiver ativo
-            // style={activeFilters.episode ? { fontWeight: "bold" } : {}}
-          >
+          <button onClick={() => handleFilterToggle("episode")}>
             <div
               className="checkbox"
               style={
@@ -272,11 +330,12 @@ export default function PodcastGridClient({
               />
             </div>
             Episodes
-            <span>{filteredEpisodes.length}</span>
+            <span>{episodesTotal}</span>
           </button>
         </div>
-        {searchQuery.length > 0 ? (
-          /* --- CENÁRIO 1: EXIBINDO RESULTADOS DA BUSCA --- */
+
+        {debouncedSearch.length > 0 ? (
+          /* --- SEARCH RESULTS VIEW --- */
           <div className="grid-section">
             <div className="count">
               <div className="channels">Results</div>
@@ -325,8 +384,10 @@ export default function PodcastGridClient({
                     </div>
                   </div>
                 ))
+              ) : isLoadingEpisodes ? (
+                <p>Searching...</p>
               ) : (
-                <p>No results found for {`"${searchQuery}"`}.</p>
+                <p>No results found for {`"${debouncedSearch}"`}.</p>
               )}
             </div>
 
@@ -344,7 +405,7 @@ export default function PodcastGridClient({
             )}
           </div>
         ) : (
-          /* --- CENÁRIO 2: EXIBIÇÃO PADRÃO (SEM BUSCA) --- */
+          /* --- DEFAULT BROWSE VIEW --- */
           <>
             <div className="grid-section">
               <div className="count">
@@ -397,58 +458,58 @@ export default function PodcastGridClient({
               )}
             </div>
 
-            {filteredEpisodes.length > 0 && (
-              <div className="grid-section" style={{ marginTop: "3rem" }}>
-                <div className="count">
-                  <div className="channels">Episodes</div>
-                  <p id="channel-count">
-                    {`Showing ${episodesToDisplay.length} of ${filteredEpisodes.length}`}
-                  </p>
-                </div>
-                <div id="episodeList" className="podcastList">
-                  {episodesToDisplay.map((item) => (
-                    <div
-                      key={`episode-${item.id}`}
-                      className="podcast-card"
-                      onClick={() =>
-                        handleCardClick({ ...item, type: "episode" })
-                      }
-                    >
-                      <Image
-                        src={`${API_URL}${item.imageUrl}`}
-                        alt={item.title}
-                        width={150}
-                        height={150}
-                        style={{ objectFit: "cover" }}
-                        priority
-                      />
-                      <div className="podcast-details">
-                        <h3>{item.title}</h3>
-                        <div className="categories">
-                          {item.categories?.split(",").map((cat) => (
-                            <span key={cat} className="category-tag">
-                              {capitalizeFirstLetter(cat.trim())}
-                            </span>
-                          ))}
-                        </div>
+            <div className="grid-section" style={{ marginTop: "3rem" }}>
+              <div className="count">
+                <div className="channels">Episodes</div>
+                <p id="channel-count">
+                  {`Showing ${episodes.length} of ${episodesTotal}`}
+                </p>
+              </div>
+              <div id="episodeList" className="podcastList">
+                {episodes.map((item) => (
+                  <div
+                    key={`episode-${item.id}`}
+                    className="podcast-card"
+                    onClick={() => handleEpisodeClick(item)}
+                  >
+                    <Image
+                      src={`${API_URL}${item.imageUrl}`}
+                      alt={item.title}
+                      width={150}
+                      height={150}
+                      style={{ objectFit: "cover" }}
+                      priority
+                    />
+                    <div className="podcast-details">
+                      <h3>{item.title}</h3>
+                      {item.podcastTitle && (
+                        <p style={{ fontSize: "0.8em", color: "#888", margin: "2px 0" }}>
+                          {item.podcastTitle}
+                        </p>
+                      )}
+                      <div className="categories">
+                        {item.categories?.split(",").map((cat) => (
+                          <span key={cat} className="category-tag">
+                            {capitalizeFirstLetter(cat.trim())}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
-                {visibleEpisodesCount < filteredEpisodes.length && (
-                  <div style={{ textAlign: "center", marginTop: "2rem" }}>
-                    <button
-                      onClick={() =>
-                        setVisibleEpisodesCount((c) => c + ITEMS_INCREMENT)
-                      }
-                      className="see-more-button"
-                    >
-                      See More
-                    </button>
                   </div>
-                )}
+                ))}
               </div>
-            )}
+              {hasMoreEpisodes && (
+                <div style={{ textAlign: "center", marginTop: "2rem" }}>
+                  <button
+                    onClick={handleLoadMoreEpisodes}
+                    className="see-more-button"
+                    disabled={isLoadingEpisodes}
+                  >
+                    {isLoadingEpisodes ? "Loading..." : "See More"}
+                  </button>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>
