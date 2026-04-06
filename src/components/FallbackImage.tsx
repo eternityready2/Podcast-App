@@ -6,5 +6,6 @@ type FallbackImageProps = ImageProps & { fallbackSrc?: string };
 
 export default function FallbackImage({ src, fallbackSrc = "/placeholder.png", ...props }: FallbackImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
-  return <Image {...props} src={imgSrc} onError={() => setImgSrc(fallbackSrc)} />;
+  const isExternal = typeof imgSrc === "string" && imgSrc.startsWith("http");
+  return <Image {...props} src={imgSrc} unoptimized={isExternal} onError={() => setImgSrc(fallbackSrc)} />;
 }
