@@ -1,7 +1,7 @@
 "use client"; // ESSENCIAL: Este componente é interativo e roda no cliente
 
 import Link from "next/link";
-import Image from "next/image";
+import FallbackImage from "@/components/FallbackImage";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 
@@ -56,7 +56,7 @@ export default function ClientSplideWrapper({
         return (
           <SplideSlide key={item.slug}>
             <Link href={`/episodes/${item.slug}`}>
-              <Image
+              <FallbackImage
                 src={imageUrl}
                 alt={item.title}
                 width={200}

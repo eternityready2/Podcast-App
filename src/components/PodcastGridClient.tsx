@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { usePlayer } from "@/app/context/PlayerContext";
-import Image from "next/image";
+import FallbackImage from "@/components/FallbackImage";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -352,7 +352,7 @@ export default function PodcastGridClient({
                     className="podcast-card"
                     onClick={() => handleCardClick(item)}
                   >
-                    <Image
+                    <FallbackImage
                       src={`${API_URL}${item.imageUrl}`}
                       alt={item.title}
                       width={150}
@@ -423,7 +423,7 @@ export default function PodcastGridClient({
                       handleCardClick({ ...item, type: "podcast" })
                     }
                   >
-                    <Image
+                    <FallbackImage
                       src={`${API_URL}${item.imageUrl}`}
                       alt={item.title}
                       width={150}
@@ -472,7 +472,7 @@ export default function PodcastGridClient({
                     className="podcast-card"
                     onClick={() => handleEpisodeClick(item)}
                   >
-                    <Image
+                    <FallbackImage
                       src={`${API_URL}${item.imageUrl}`}
                       alt={item.title}
                       width={150}

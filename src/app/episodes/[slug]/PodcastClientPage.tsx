@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import FallbackImage from "@/components/FallbackImage";
 import EpisodeCard from "@/components/episodeCard";
 import Link from "next/link";
 import SplideSlider from "@/components/splideSlider";
@@ -127,7 +127,7 @@ export default function PodcastClientPage({
         <div className="podcast-section">
           <div className="podcast-header">
             <div className="podcast-image-wrap">
-              <Image
+              <FallbackImage
                 src={`${API_URL}${initialPodcast.imageUrl}`}
                 alt={initialPodcast.title}
                 className="podcast-image"

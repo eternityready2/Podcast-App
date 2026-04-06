@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import FallbackImage from "@/components/FallbackImage";
 
 import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -198,7 +198,7 @@ export default function EpisodeCard({
     <div className={`episode-section ${isPlaying ? "playing" : ""}`}>
       <div className="episode-image-wrap-outer">
         <div className="episode-image-wrap">
-          <Image
+          <FallbackImage
             className="episode-image"
             src={`${apiUrl}${episode.imageUrl}`}
             alt={episode.title || "Episode Cover"}
