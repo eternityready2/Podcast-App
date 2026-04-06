@@ -48,6 +48,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     currentEpisodeIndex >= 0 ? playlist[currentEpisodeIndex] : null;
 
   useEffect(() => {
+    console.log('[PlayerContext] MOUNTED');
+    return () => console.log('[PlayerContext] UNMOUNTED');
+  }, []);
+
+  useEffect(() => {
+    console.log(`[PlayerContext] episode effect: currentEpisode=${currentEpisode?.id}, isPlaying=${isPlaying}`);
     if (!currentEpisode) return;
 
     const audio = audioRef.current;

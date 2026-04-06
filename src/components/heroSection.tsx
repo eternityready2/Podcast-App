@@ -55,7 +55,11 @@ function HeroSection() {
   const imageTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const goToNextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % slidesData.length);
+    setCurrentSlide((prev) => {
+      const next = (prev + 1) % slidesData.length;
+      console.log(`[HeroSection] goToNextSlide: ${prev} → ${next} (total slides: ${slidesData.length})`);
+      return next;
+    });
   }, []);
 
   // 3. useEffect PRINCIPAL PARA INICIALIZAÇÃO
@@ -180,6 +184,7 @@ function HeroSection() {
   }, [goToNextSlide]);
 
   useEffect(() => {
+    console.log(`[HeroSection] slide effect fired, currentSlide=${currentSlide}`);
     if (imageTimerRef.current) clearTimeout(imageTimerRef.current);
 
     playerControlsRef.current.forEach((control, index) => {
@@ -197,7 +202,9 @@ function HeroSection() {
 
     const activeSLide = slidesData[currentSlide];
     if (activeSLide.type === "image") {
+      console.log(`[HeroSection] scheduling image timer for slide ${currentSlide}`);
       imageTimerRef.current = setTimeout(() => {
+        console.log(`[HeroSection] image timer fired for slide ${currentSlide}`);
         goToNextSlide();
       }, 5000);
     }

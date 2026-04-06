@@ -151,6 +151,7 @@ export default function PodcastGridClient({
 
   // Re-fetch from page 1 whenever search or category changes
   useEffect(() => {
+    console.log(`[PodcastGridClient] search/category effect: debouncedSearch="${debouncedSearch}" selectedCategory="${selectedCategory}"`);
     setVisibleMixedCount(INITIAL_ITEMS_LIMIT);
     setVisiblePodcastsCount(INITIAL_ITEMS_LIMIT);
     if (activeFilters.podcast && activeFilters.episode && !debouncedSearch && !selectedCategory) return;

@@ -75,6 +75,7 @@ export default function PodcastClientPage({
   // Função para buscar episódios, memorizada com useCallback para otimização
   const fetchAllEpisodesForSeason = useCallback(
     async (season: number) => {
+      console.log(`[PodcastClientPage] fetchAllEpisodesForSeason called, season=${season}`);
       setIsLoading(true);
 
       try {
@@ -98,6 +99,12 @@ export default function PodcastClientPage({
   );
 
   useEffect(() => {
+    console.log(`[PodcastClientPage] MOUNTED slug=${slug}`);
+    return () => console.log(`[PodcastClientPage] UNMOUNTED slug=${slug}`);
+  }, [slug]);
+
+  useEffect(() => {
+    console.log(`[PodcastClientPage] seasons effect: count=${initialSeasons.count} hasUnknown=${initialSeasons.hasUnknown}`);
     if (initialSeasons.count > 0) {
       setSelectedSeason(initialSeasons.count);
     } else if (initialSeasons.hasUnknown) {
