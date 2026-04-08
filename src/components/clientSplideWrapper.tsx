@@ -61,25 +61,16 @@ export default function ClientSplideWrapper({
                 alt={item.title}
                 width={200}
                 height={200}
-                priority
               />
               <h3 className="slide-title">{item.title}</h3>
             </Link>
             <p>
-              {categoriesArray
-                .map((cat) => (
-                  <Link
-                    href={`/?category=${encodeURIComponent(cat)}`}
-                    key={cat}
-                  >
-                    {cat}
-                  </Link>
-                ))
-                .reduce((prev, curr) => (
-                  <>
-                    {prev} {curr}
-                  </>
-                ))}
+              {categoriesArray.map((cat, i) => (
+                <span key={cat}>
+                  {i > 0 && " "}
+                  <Link href={`/?category=${encodeURIComponent(cat)}`}>{cat}</Link>
+                </span>
+              ))}
             </p>
           </SplideSlide>
         );
