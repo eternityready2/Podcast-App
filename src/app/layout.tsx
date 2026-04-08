@@ -61,18 +61,17 @@ export default function RootLayout({
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
-        <Script src="/lib/global-exporter.js" strategy="beforeInteractive" />
         <Script src="https://eternityready.com/lib/constants.js" strategy="beforeInteractive" />
-        <Script src="https://eternityready.com/lib/tracking.js" strategy="beforeInteractive" />
-        <Script src="https://eternityready.com/lib/session.js" strategy="beforeInteractive" />
-        <Script src="https://eternityready.com/lib/toast.js" strategy="beforeInteractive" />
-        <Script src="https://eternityready.com/lib/normalize.js" strategy="beforeInteractive" />
-        <Script src="https://eternityready.com/lib/media-section.js" strategy="beforeInteractive" />
-        <Script src="https://eternityready.com/lib/utils.js" strategy="beforeInteractive" /> 
         <eternity-header></eternity-header>
         <PlayerProvider>{children}</PlayerProvider>
         <Salvation />
         <eternity-footer></eternity-footer>
+        <Script src="https://eternityready.com/lib/tracking.js" strategy="afterInteractive" />
+        <Script src="https://eternityready.com/lib/session.js" strategy="afterInteractive" />
+        <Script src="https://eternityready.com/lib/toast.js" strategy="afterInteractive" />
+        <Script src="https://eternityready.com/lib/normalize.js" strategy="afterInteractive" />
+        <Script src="https://eternityready.com/lib/media-section.js" strategy="afterInteractive" />
+        <Script src="https://eternityready.com/lib/utils.js" strategy="afterInteractive" />
         <Script src="https://eternityready.com/lib/eternityHeader.js" strategy="afterInteractive" />
         <Script src="https://eternityready.com/lib/eternityFooter.js" strategy="afterInteractive" />
       </body>
