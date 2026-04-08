@@ -359,7 +359,6 @@ export default function PodcastGridClient({
                       width={150}
                       height={150}
                       style={{ objectFit: "cover" }}
-                      priority
                     />
                     <div className="podcast-details">
                       <h3>
@@ -430,7 +429,6 @@ export default function PodcastGridClient({
                       width={150}
                       height={150}
                       style={{ objectFit: "cover" }}
-                      priority
                     />
                     <div className="podcast-details">
                       <h3>{item.title}</h3>
@@ -479,7 +477,6 @@ export default function PodcastGridClient({
                       width={150}
                       height={150}
                       style={{ objectFit: "cover" }}
-                      priority
                     />
                     <div className="podcast-details">
                       <h3>{item.title}</h3>
